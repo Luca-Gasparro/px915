@@ -209,6 +209,71 @@ def plot_diffusion_vs_temperature(
 
 
 @typechecked
+def average_diffusion_plot(
+    npz_files: List[str],
+    temperature_array: np.ndarray,
+    residue_name: str,
+    is_dry: bool,
+) -> np.ndarray:
+    all_diffusions = []
+
+    """Plots the average diffusion coefficients of the API at each temperature. Also plots the diffusion
+    coefficient of the API at each temperature for the given configurations. Errors are taken to be
+    maximum difference between the average diffusion coefficient and the diffusion coefficient for the 
+    given configurations."""
+
+    for npz_file in npz_files:
+        data = np.load(npz_file, allow_pickle=True)
+        diffusion_array = data["diffusion_array"]
+        all_diffusions.append(diffusion_array)
+
+    all_diffusions_array = np.array(all_diffusions)
+    avg_diffusions = np.mean(all_diffusions_array, axis=0)
+
+    # Compute symmetric error bars as the maximum distance from average
+    max_distance = np.max(np.abs(all_diffusions_array - avg_diffusions), axis=0)
+
+    # Plotting
+    label = "Dry" if is_dry else "Wet"
+    plt.figure(figsize=(8, 6))
+    # Plot individual points
+    for i, temp in enumerate(temperature_array):
+        plt.scatter(
+            [temp] * all_diffusions_array.shape[0],
+            all_diffusions_array[:, i],
+            color="red",
+            s=10,
+            zorder=2,
+            label="Individual Configurations" if i == 0 else None,
+        )
+
+    # Plot average line
+    # Plot average diffusion with symmetric error bars
+    plt.errorbar(
+        temperature_array,
+        avg_diffusions,
+        yerr=max_distance,
+        fmt="ko",
+        capsize=3,
+        markersize=5,
+        label="Average Diffusion Coefficient",
+        zorder=3,
+    )
+
+    plt.gca().invert_xaxis()
+    plt.xlabel("Temperature (K)")
+    plt.ylabel(r"Average Diffusion Coefficient (cm$^2$/s)")
+    plt.title(f"Average Diffusion Coefficient vs Temperature ({label} {residue_name})")
+    plt.grid(True, linestyle="--", linewidth=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"average_diffusion_vs_temp_{label.lower()}.png")
+    plt.close()
+
+    return avg_diffusions
+
+
+@typechecked
 def msd_calculator(
     directory: str,
     topology_file: str,
