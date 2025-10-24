@@ -1,0 +1,9 @@
+**/*.png
+
+*.pyc
+
+**/*.xtc_offsets.npz
+
+**/*.xtc_offsets.lock
+
+**/*.ipynb_checkpoints
