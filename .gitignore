@@ -6,4 +6,6 @@
 
 **/*.xtc_offsets.lock
 
+**/*.xtc
+
 **/*.ipynb_checkpoints
