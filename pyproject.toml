@@ -4,4 +4,8 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "mdanalysis>=2.10.0",
+    "tidynamics>=1.1.2",
+    "typeguard>=4.4.4",
+]
